@@ -1,59 +1,38 @@
-// PropertyBookingController.java
 package org.code.Controller;
 
 import org.code.Entities.*;
-import org.code.Services.*;
+import org.code.Exceptions.ValidationException;
+import org.code.Services.PropertyBookingService;
 import org.code.Helpers.HelperFunctions;
 
 import java.util.List;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-/**
- * Controller class for managing property bookings.
- */
 public class PropertyBookingController {
     private final PropertyBookingService bookingService;
 
-    /**
-     * Constructs a PropertyBookingController with the specified booking service.
-     *
-     * @param bookingService the booking service to be used by this controller
-     */
     public PropertyBookingController(PropertyBookingService bookingService) {
         this.bookingService = bookingService;
     }
 
-    // -------------------- Host Operations --------------------
-
-    /**
-     * Retrieves reviews for a specific property.
-     *
-     * @param property The property whose reviews are to be fetched.
-     * @return A list of reviews for the property.
-     */
     public List<Review> getReviewsForProperty(Property property) {
-        // Call with sorting by rating in descending order
-        return bookingService.getReviewsForProperty(property.getId(), true, true); // Sort by rating, descending
+        if (property == null) {
+            throw new ValidationException("Property cannot be null.");
+        }
+        return bookingService.getReviewsForProperty(property.getId(), true, true);
     }
 
-
-    /**
-     * Adds a new host.
-     *
-     * @param host the host to be added
-     */
     public void addHost(Host host) {
+        if (host == null) {
+            throw new ValidationException("Host cannot be null.");
+        }
         bookingService.addHost(host);
         System.out.println("Host added successfully");
     }
 
-    /**
-     * Lists all hosts.
-     */
     public void listAllHosts() {
         List<Host> hosts = bookingService.getAllHosts();
-
         if (hosts.isEmpty()) {
             System.out.println("No hosts found.");
         } else {
@@ -68,41 +47,28 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Retrieves a host by their ID.
-     *
-     * @param id the ID of the host
-     * @return the host with the specified ID
-     */
     public Host getHostById(int id) {
+        if (id <= 0) {
+            throw new ValidationException("Host ID must be positive.");
+        }
         return bookingService.getHostById(id);
     }
 
-    /**
-     * Retrieves all hosts.
-     *
-     * @return a list of all hosts
-     */
     public List<Host> getAllHosts() {
         return bookingService.getAllHosts();
     }
 
-    /**
-     * Retrieves properties managed by a specific host.
-     *
-     * @param hostId the ID of the host
-     * @return a list of properties managed by the host
-     */
     public List<Property> getPropertiesForHost(int hostId) {
+        if (hostId <= 0) {
+            throw new ValidationException("Host ID must be positive.");
+        }
         return bookingService.getPropertiesForHost(hostId);
     }
 
-    /**
-     * Lists properties managed by a specific host.
-     *
-     * @param host the host whose properties are to be listed
-     */
     public void listPropertiesForHost(Host host) {
+        if (host == null) {
+            throw new ValidationException("Host cannot be null.");
+        }
         List<Property> properties = bookingService.getPropertiesForHost(host.getId());
         if (properties.isEmpty()) {
             System.out.println("No properties found for this host.");
@@ -122,12 +88,10 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Shows properties managed by a specific host.
-     *
-     * @param host the host whose properties are to be shown
-     */
     public void showPropertiesForHost(Host host) {
+        if (host == null) {
+            throw new ValidationException("Host cannot be null.");
+        }
         List<Property> properties = bookingService.getPropertiesForHost(host.getId());
         if (properties.isEmpty()) {
             System.out.println("No properties found for this host.");
@@ -149,40 +113,55 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Lists a new property for a host.
-     *
-     * @param host               the host listing the property
-     * @param address            the address of the property
-     * @param pricePerNight      the price per night for the property
-     * @param description        the description of the property
-     * @param location           the location of the property
-     * @param amenityIDs         the list of amenity IDs for the property
-     * @param cancellationPolicy the cancellation policy of the property
-     */
     public void listProperty(int id, Host host, String address, double pricePerNight, String description, Location location, List<Integer> amenityIDs, CancellationPolicy cancellationPolicy) {
+        if (host == null) {
+            throw new ValidationException("Host cannot be null.");
+        }
+        if (address == null || address.isEmpty()) {
+            throw new ValidationException("Address cannot be null or empty.");
+        }
+        if (pricePerNight <= 0) {
+            throw new ValidationException("Price per night must be positive.");
+        }
+        if (description == null || description.isEmpty()) {
+            throw new ValidationException("Description cannot be null or empty.");
+        }
+        if (location == null) {
+            throw new ValidationException("Location cannot be null.");
+        }
+        if (amenityIDs == null || amenityIDs.isEmpty()) {
+            throw new ValidationException("Amenity IDs cannot be null or empty.");
+        }
+        if (cancellationPolicy == null) {
+            throw new ValidationException("Cancellation policy cannot be null.");
+        }
+
         Property property = new Property(id, address, pricePerNight, description, location, amenityIDs, cancellationPolicy, host.getId());
         bookingService.addProperty(property);
         System.out.println("Property listed successfully.");
     }
 
     public CancellationPolicy getCancellationPolicyByDescription(String description) {
+        if (description == null || description.isEmpty()) {
+            throw new ValidationException("Description cannot be null or empty.");
+        }
         return bookingService.getCancellationPolicyByDescription(description);
     }
 
-    /**
-     * Adds an amenity to a property managed by a host.
-     *
-     * @param host          the host managing the property
-     * @param propertyIndex the index of the property in the host's property list
-     * @param name          the name of the amenity
-     * @param description   the description of the amenity
-     */
     public void addAmenityToProperty(Host host, int propertyIndex, String name, String description) {
+        if (host == null) {
+            throw new ValidationException("Host cannot be null.");
+        }
+        if (name == null || name.isEmpty()) {
+            throw new ValidationException("Amenity name cannot be null or empty.");
+        }
+        if (description == null || description.isEmpty()) {
+            throw new ValidationException("Amenity description cannot be null or empty.");
+        }
+
         List<Property> properties = getPropertiesForHost(host.getId());
         if (propertyIndex < 0 || propertyIndex >= properties.size()) {
-            System.out.println("Invalid property number.");
-            return;
+            throw new ValidationException("Invalid property number.");
         }
 
         Property property = properties.get(propertyIndex);
@@ -192,24 +171,16 @@ public class PropertyBookingController {
         System.out.println("Amenity added successfully.");
     }
 
-    // -------------------- Guest Operations --------------------
-
-    /**
-     * Adds a new guest.
-     *
-     * @param guest the guest to be added
-     */
     public void addGuest(Guest guest) {
+        if (guest == null) {
+            throw new ValidationException("Guest cannot be null.");
+        }
         bookingService.addGuest(guest);
         System.out.println("Guest added successfully");
     }
 
-    /**
-     * Lists all guests.
-     */
     public void listAllGuests() {
         List<Guest> guests = bookingService.getAllGuests();
-
         if (guests.isEmpty()) {
             System.out.println("No guests found.");
         } else {
@@ -224,44 +195,38 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Retrieves a guest by their ID.
-     *
-     * @param id the ID of the guest
-     * @return the guest with the specified ID
-     */
     public Guest getGuestById(int id) {
+        if (id <= 0) {
+            throw new ValidationException("Guest ID must be positive.");
+        }
         return bookingService.getGuestById(id);
     }
 
-    /**
-     * Retrieves all guests.
-     *
-     * @return a list of all guests
-     */
     public List<Guest> getAllGuests() {
         return bookingService.getAllGuests();
     }
 
-    /**
-     * Retrieves bookings for a specific guest.
-     *
-     * @param guestId the ID of the guest
-     * @return a list of bookings for the guest
-     */
     public List<Booking> getBookingsForGuest(int guestId) {
+        if (guestId <= 0) {
+            throw new ValidationException("Guest ID must be positive.");
+        }
         return bookingService.getBookingsForGuest(guestId);
     }
 
-    /**
-     * Books a property for a guest.
-     *
-     * @param guest        the guest booking the property
-     * @param propertyId   the ID of the property to be booked
-     * @param checkInDate  the check-in date
-     * @param checkOutDate the check-out date
-     */
     public void bookProperty(Guest guest, int propertyId, Date checkInDate, Date checkOutDate) {
+        if (guest == null) {
+            throw new ValidationException("Guest cannot be null.");
+        }
+        if (propertyId <= 0) {
+            throw new ValidationException("Property ID must be positive.");
+        }
+        if (checkInDate == null || checkOutDate == null) {
+            throw new ValidationException("Check-in and check-out dates cannot be null.");
+        }
+        if (checkInDate.after(checkOutDate)) {
+            throw new ValidationException("Check-in date cannot be after check-out date.");
+        }
+
         Property property = bookingService.getPropertyById(propertyId);
         if (property != null) {
             boolean success = bookingService.bookProperty(guest, property, checkInDate, checkOutDate);
@@ -275,12 +240,10 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Views bookings for a guest.
-     *
-     * @param guest the guest whose bookings are to be viewed
-     */
     public void viewBookings(Guest guest) {
+        if (guest == null) {
+            throw new ValidationException("Guest cannot be null.");
+        }
         List<Booking> bookings = bookingService.getBookingsForGuest(guest.getId());
         if (bookings.isEmpty()) {
             System.out.println("No bookings found.");
@@ -296,15 +259,20 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Leaves a review for a property.
-     *
-     * @param guest      the guest leaving the review
-     * @param propertyId the ID of the property being reviewed
-     * @param rating     the rating given by the guest
-     * @param comment    the comment given by the guest
-     */
     public void leaveReview(Guest guest, int propertyId, double rating, String comment) {
+        if (guest == null) {
+            throw new ValidationException("Guest cannot be null.");
+        }
+        if (propertyId <= 0) {
+            throw new ValidationException("Property ID must be positive.");
+        }
+        if (rating < 0.0 || rating > 5.0) {
+            throw new ValidationException("Rating must be between 0.0 and 5.0.");
+        }
+        if (comment == null || comment.isEmpty()) {
+            throw new ValidationException("Comment cannot be null or empty.");
+        }
+
         Property property = bookingService.getPropertyById(propertyId);
         if (property != null) {
             bookingService.addReview(guest, property, rating, comment);
@@ -314,12 +282,10 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Views all properties in a specific location.
-     *
-     * @param location the location to search for properties
-     */
     public void viewAllPropertiesByLocation(Location location) {
+        if (location == null || location.getCity().isEmpty() || location.getCountry().isEmpty()) {
+            throw new ValidationException("Location details are invalid.");
+        }
         List<Property> properties = bookingService.getPropertiesByLocation(location);
         if (properties.isEmpty()) {
             System.out.println("No properties found for location: " + location);
@@ -339,12 +305,10 @@ public class PropertyBookingController {
         }
     }
 
-    /**
-     * Views all properties available on a specific date.
-     *
-     * @param date the date to search for available properties
-     */
     public void viewAllPropertiesByDate(Date date) {
+        if (date == null) {
+            throw new ValidationException("Date cannot be null.");
+        }
         List<Property> properties = bookingService.getAllProperties().stream()
                 .filter(property -> property.checkAvailability(date, date))
                 .collect(Collectors.toList());
@@ -366,7 +330,11 @@ public class PropertyBookingController {
         }
     }
 
+
     public void filterGuestsByBookingCount(int minBookings) {
+        if (minBookings < 0) {
+            throw new ValidationException("Minimum bookings cannot be negative.");
+        }
         List<Guest> guests = bookingService.filterGuestsByBookingCount(minBookings);
         if (guests.isEmpty()) {
             System.out.println("No guests found with more than " + minBookings + " bookings.");
@@ -375,7 +343,7 @@ public class PropertyBookingController {
         }
     }
 
-    // -------------------- Property Operations --------------------
+// -------------------- Property Operations --------------------
 
     /**
      * Adds a new property.
@@ -383,6 +351,9 @@ public class PropertyBookingController {
      * @param property the property to be added
      */
     public void addProperty(Property property) {
+        if (property == null) {
+            throw new ValidationException("Property cannot be null.");
+        }
         bookingService.addProperty(property);
         System.out.println("Property added successfully");
     }
@@ -418,6 +389,9 @@ public class PropertyBookingController {
      * @return the property with the specified ID
      */
     public Property getPropertyById(int id) {
+        if (id <= 0) {
+            throw new ValidationException("Property ID must be positive.");
+        }
         return bookingService.getPropertyById(id);
     }
 
@@ -427,6 +401,9 @@ public class PropertyBookingController {
      * @param location the location to search for properties
      */
     public void listPropertiesByLocation(Location location) {
+        if (location == null || location.getCity().isEmpty() || location.getCountry().isEmpty()) {
+            throw new ValidationException("Location details are invalid.");
+        }
         List<Property> properties = bookingService.getPropertiesByLocation(location);
 
         if (properties.isEmpty()) {
@@ -448,6 +425,9 @@ public class PropertyBookingController {
     }
 
     public void filterPropertiesByLocation(Location location) {
+        if (location == null || location.getCity().isEmpty() || location.getCountry().isEmpty()) {
+            throw new ValidationException("Location details are invalid.");
+        }
         List<Property> properties = bookingService.filterPropertiesByLocation(location);
         if (properties.isEmpty()) {
             System.out.println("No properties found in the specified location: " + location.getCity() + ", " + location.getCountry());
@@ -468,11 +448,14 @@ public class PropertyBookingController {
     }
 
     public void deleteProperty(int propertyId) {
+        if (propertyId <= 0) {
+            throw new ValidationException("Property ID must be positive.");
+        }
         bookingService.deleteProperty(propertyId);
         System.out.println("Property deleted successfully.");
     }
 
-    // -------------------- Amenity Operations --------------------
+// -------------------- Amenity Operations --------------------
 
     /**
      * Adds an amenity to a property.
@@ -481,6 +464,12 @@ public class PropertyBookingController {
      * @param amenity  the amenity to be added
      */
     public void addAmenityToProperty(Property property, Amenity amenity) {
+        if (property == null) {
+            throw new ValidationException("Property cannot be null.");
+        }
+        if (amenity == null) {
+            throw new ValidationException("Amenity cannot be null.");
+        }
         bookingService.addAmenityToProperty(property, amenity);
         System.out.println("Amenity added successfully.");
     }
@@ -492,6 +481,9 @@ public class PropertyBookingController {
      * @return a list of amenities for the property
      */
     public List<Amenity> getAmenitiesForProperty(Property property) {
+        if (property == null) {
+            throw new ValidationException("Property cannot be null.");
+        }
         return bookingService.getAmenitiesForProperty(property);
     }
 
@@ -511,10 +503,13 @@ public class PropertyBookingController {
      * @return the amenity with the specified ID
      */
     public Amenity getAmenityById(int id) {
+        if (id <= 0) {
+            throw new ValidationException("Amenity ID must be positive.");
+        }
         return bookingService.getAmenityById(id);
     }
 
-    // -------------------- Payment Operations --------------------
+// -------------------- Payment Operations --------------------
 
     /**
      * Processes a payment for a booking.
@@ -522,6 +517,9 @@ public class PropertyBookingController {
      * @param booking the booking for which the payment is to be processed
      */
     public void processPaymentForBooking(Booking booking) {
+        if (booking == null) {
+            throw new ValidationException("Booking cannot be null.");
+        }
         bookingService.processPaymentForBooking(booking);
         System.out.println("Payment processed successfully.");
     }
@@ -532,6 +530,9 @@ public class PropertyBookingController {
      * @param host the host whose payments are to be viewed
      */
     public void viewPaymentsForHost(Host host) {
+        if (host == null) {
+            throw new ValidationException("Host cannot be null.");
+        }
         List<Payment> payments = bookingService.getPaymentsForHost(host.getId());
         if (payments.isEmpty()) {
             System.out.println("No payments received by this host.");
@@ -548,6 +549,9 @@ public class PropertyBookingController {
      * @param host the host whose transaction history is to be viewed
      */
     public void viewTransactionHistoryForHost(Host host) {
+        if (host == null) {
+            throw new ValidationException("Host cannot be null.");
+        }
         List<Payment> transactionHistory = bookingService.getTransactionHistoryForHost(host.getId());
         if (transactionHistory.isEmpty()) {
             System.out.println("No transaction history for this host.");
@@ -560,6 +564,9 @@ public class PropertyBookingController {
     }
 
     public void listAvailablePropertiesByDateSortedByPrice(Date date) {
+        if (date == null) {
+            throw new ValidationException("Date cannot be null.");
+        }
         List<Property> properties = bookingService.getAvailablePropertiesByDateSortedByPrice(date);
 
         if (properties.isEmpty()) {
@@ -579,17 +586,4 @@ public class PropertyBookingController {
             });
         }
     }
-
-    /**
-     * Retrieves properties sorted by total reviews in descending order.
-     */
-//    public void listPropertiesByTotalReviews() {
-//        List<Property> properties = bookingService.getPropertiesByTotalReviews();
-//
-//        if (properties.isEmpty()) {
-//            System.out.println("No properties found.");
-//        } else {
-//            properties.forEach(property -> System.out.println(property.getId() + ": " + property.getAddress() + " - Total Reviews: " + bookingService.getReviewsForProperty(property.getId()).size()));
-//        }
-//    }
 }
