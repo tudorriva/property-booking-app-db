@@ -166,6 +166,10 @@ public class PropertyBookingController {
         System.out.println("Property listed successfully.");
     }
 
+    public CancellationPolicy getCancellationPolicyByDescription(String description) {
+        return bookingService.getCancellationPolicyByDescription(description);
+    }
+
     /**
      * Adds an amenity to a property managed by a host.
      *

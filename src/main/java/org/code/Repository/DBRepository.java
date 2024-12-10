@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.code.Entities.HasId;
+import org.hibernate.exception.ConstraintViolationException;
 
 import java.util.List;
 
@@ -29,6 +30,10 @@ public class DBRepository<T extends HasId> implements IRepository<T> {
         try {
             session.save(entity); // Save new entity
             transaction.commit();
+        } catch (ConstraintViolationException e) {
+            transaction.rollback();
+            System.err.println("Constraint violation: " + e.getConstraintName());
+            throw new RuntimeException("Error creating entity in the database. Constraint violation: " + e.getConstraintName(), e);
         } catch (Exception e) {
             transaction.rollback();
             throw new RuntimeException("Error creating entity in the database.", e);

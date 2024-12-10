@@ -2,7 +2,12 @@ package org.code.Services;
 
 import org.code.Entities.*;
 import org.code.Repository.IRepository;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +24,7 @@ public class PropertyBookingService {
     private final IRepository<Location> locationRepo;
     private final IRepository<CancellationPolicy> cancellationPolicyRepo;
     private final IRepository<Payment> paymentRepo;
+    private final SessionFactory sessionFactory;
 
     public PropertyBookingService(
             IRepository<Host> hostRepo,
@@ -29,7 +35,8 @@ public class PropertyBookingService {
             IRepository<Amenity> amenityRepo,
             IRepository<Location> locationRepo,
             IRepository<CancellationPolicy> cancellationPolicyRepo,
-            IRepository<Payment> paymentRepo) {
+            IRepository<Payment> paymentRepo,
+            SessionFactory sessionFactory) {
         this.hostRepo = hostRepo;
         this.guestRepo = guestRepo;
         this.propertyRepo = propertyRepo;
@@ -39,6 +46,7 @@ public class PropertyBookingService {
         this.locationRepo = locationRepo;
         this.cancellationPolicyRepo = cancellationPolicyRepo;
         this.paymentRepo = paymentRepo;
+        this.sessionFactory = sessionFactory;
     }
 
     /**
@@ -128,9 +136,20 @@ public class PropertyBookingService {
      * @return a list of properties managed by the host
      */
     public List<Property> getPropertiesForHost(int hostId) {
-        return propertyRepo.getAll().stream()
-                .filter(property -> property.getHostID() == hostId)
-                .collect(Collectors.toList());
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            List<Property> properties = propertyRepo.getAll().stream()
+                    .filter(property -> property.getHostID() == hostId)
+                    .collect(Collectors.toList());
+            transaction.commit();
+            return properties;
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new RuntimeException("Error fetching properties for host", e);
+        } finally {
+            session.close();
+        }
     }
 
     // -------------------- Property and Amenity Management --------------------
@@ -141,8 +160,50 @@ public class PropertyBookingService {
      * @param property the property to be added
      */
     public void addProperty(Property property) {
-        if (property != null)
+        if (property != null) {
+            // Ensure the cancellation policy exists
+            CancellationPolicy policy = property.getCancellationPolicy();
+            if (policy != null) {
+                CancellationPolicy existingPolicy = getCancellationPolicyByDescription(policy.getDescription());
+                if (existingPolicy == null) {
+                    cancellationPolicyRepo.create(policy);
+                } else {
+                    property.setCancellationPolicy(existingPolicy);
+                }
+            }
+
+            // Ensure the location exists
+            Location location = property.getLocation();
+            if (location != null) {
+                Location existingLocation = getLocationByCityAndCountry(location.getCity(), location.getCountry());
+                if (existingLocation == null) {
+                    locationRepo.create(location);
+                } else {
+                    property.setLocation(existingLocation);
+                }
+            }
+
+            // Create the property
             propertyRepo.create(property);
+        }
+    }
+
+    public Location getLocationByCityAndCountry(String city, String country) {
+        return locationRepo.getAll().stream()
+                .filter(loc -> loc.getCity().equals(city) && loc.getCountry().equals(country))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<Integer> getAmenityIDsForProperty(int propertyId) {
+        Session session = sessionFactory.openSession();
+        try {
+            return session.createQuery("SELECT amenityID FROM property_amenities WHERE property_id = :propertyId", Integer.class)
+                    .setParameter("propertyId", propertyId)
+                    .getResultList();
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -186,6 +247,13 @@ public class PropertyBookingService {
             property.getAmenityIDs().add(amenity.getAmenityID());
             propertyRepo.update(property);
         }
+    }
+
+    public CancellationPolicy getCancellationPolicyByDescription(String description) {
+        return cancellationPolicyRepo.getAll().stream()
+                .filter(policy -> policy.getDescription().equals(description))
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -252,6 +320,7 @@ public class PropertyBookingService {
             int paymentId = generateUniqueId();
             Payment payment = new Payment(paymentId, totalPrice, new Date());
             payment.processPayment();
+            paymentRepo.create(payment);
 
             int bookingId = generateUniqueId();
             Booking booking = new Booking(bookingId, checkOutDate, checkInDate, totalPrice, guest.getId(), property.getId(), payment);

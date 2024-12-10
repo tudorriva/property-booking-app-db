@@ -60,7 +60,7 @@ public class PropertyBookingApp {
         IRepository<Payment> paymentRepo = new DBRepository<>(sessionFactory, Payment.class);
 
         PropertyBookingService bookingService = new PropertyBookingService(
-                hostRepo, guestRepo, propertyRepo, bookingRepo, reviewRepo, amenityRepo, locationRepo, cancellationPolicyRepo, paymentRepo);
+                hostRepo, guestRepo, propertyRepo, bookingRepo, reviewRepo, amenityRepo, locationRepo, cancellationPolicyRepo, paymentRepo, sessionFactory);
 
         PropertyBookingController controller = new PropertyBookingController(bookingService);
 

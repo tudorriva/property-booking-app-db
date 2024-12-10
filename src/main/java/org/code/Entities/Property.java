@@ -29,8 +29,9 @@ public class Property implements HasId, Bookable {
     @JoinColumn(name = "location_id")
     private Location location;
 
-    @ElementCollection
-    @Column(name = "amenity_ids")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "property_amenities", joinColumns = @JoinColumn(name = "property_id"))
+    @Column(name = "amenity_id")
     private List<Integer> amenityIDs;
 
     @ManyToOne

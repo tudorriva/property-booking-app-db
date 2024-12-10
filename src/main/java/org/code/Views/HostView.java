@@ -87,8 +87,11 @@ public class HostView {
 
         System.out.print("Enter cancellation policy description: ");
         String cancellationPolicyDescription = scanner.nextLine();
-        int id3 = HelperFunctions.randomId();
-        CancellationPolicy cancellationPolicy = new CancellationPolicy(id3, cancellationPolicyDescription);
+        CancellationPolicy cancellationPolicy = controller.getCancellationPolicyByDescription(cancellationPolicyDescription);
+        if (cancellationPolicy == null) {
+            int id3 = HelperFunctions.randomId();
+            cancellationPolicy = new CancellationPolicy(id3, cancellationPolicyDescription);
+        }
 
         List<Integer> amenityIDs = List.of(amenity.getAmenityID());
         controller.listProperty(prop_id, host, address, pricePerNight, description, location, amenityIDs, cancellationPolicy);
