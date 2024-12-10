@@ -1,0 +1,11 @@
+gcd(X, 0, X) :- X \= 0.
+gcd(X, Y, G) :-
+    Y \= 0,
+    R is X mod Y,
+    gcd(Y, R, G).
+
+gcd_list([X], X).
+
+gcd_list([X, Y | Rest], G) :-
+    gcd(X, Y, G1),
+    gcd_list([G1 | Rest], G).

@@ -1,0 +1,36 @@
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/propbookingapp</property>
+        <property name="hibernate.connection.username">admin</property>
+        <property name="hibernate.connection.password">admin</property>
+
+        <!-- JDBC connection pool settings -->
+        <property name="hibernate.c3p0.min_size">5</property>
+        <property name="hibernate.c3p0.max_size">20</property>
+        <property name="hibernate.c3p0.timeout">300</property>
+        <property name="hibernate.c3p0.max_statements">50</property>
+        <property name="hibernate.c3p0.idle_test_period">3000</property>
+        <property name="hibernate.c3p0.testConnectionOnCheckout">true</property>
+        <property name="hibernate.c3p0.preferredTestQuery">SELECT 1</property>
+
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Entity mappings -->
+        <mapping class="org.code.Entities.Host"/>
+        <mapping class="org.code.Entities.Guest"/>
+        <mapping class="org.code.Entities.Property"/>
+        <mapping class="org.code.Entities.Booking"/>
+        <mapping class="org.code.Entities.Review"/>
+        <mapping class="org.code.Entities.Amenity"/>
+        <mapping class="org.code.Entities.Location"/>
+        <mapping class="org.code.Entities.CancellationPolicy"/>
+        <mapping class="org.code.Entities.Payment"/>
+    </session-factory>
+</hibernate-configuration>
