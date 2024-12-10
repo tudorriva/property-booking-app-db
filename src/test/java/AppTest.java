@@ -1,14 +1,22 @@
 import org.code.Entities.*;
 import org.code.Repository.DBRepository;
+import org.code.Repository.IRepository;
 import org.code.Services.PropertyBookingService;
 import org.code.Controller.PropertyBookingController;
 import org.code.Mappers.*;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
 import java.util.Date;
 import java.util.List;
 
 public class AppTest {
+    private static SessionFactory sessionFactory;
+
     public static void main(String[] args) {
+        // Initialize Hibernate
+        sessionFactory = new Configuration().configure().buildSessionFactory();
+
         // Initialize repositories
         IRepository<Host> hostRepo = new DBRepository<>(sessionFactory, Host.class);
         IRepository<Guest> guestRepo = new DBRepository<>(sessionFactory, Guest.class);
@@ -22,7 +30,7 @@ public class AppTest {
 
         // Initialize service
         PropertyBookingService bookingService = new PropertyBookingService(
-                hostRepo, guestRepo, propertyRepo, bookingRepo, reviewRepo, amenityRepo, locationRepo, cancellationPolicyRepo, paymentRepo
+                hostRepo, guestRepo, propertyRepo, bookingRepo, reviewRepo, amenityRepo, locationRepo, cancellationPolicyRepo, paymentRepo, sessionFactory
         );
 
         // Initialize controller

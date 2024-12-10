@@ -2,6 +2,7 @@ package org.code.Views;
 
 import org.code.Controller.PropertyBookingController;
 import org.code.Entities.Guest;
+import org.code.Exceptions.ValidationException;
 import org.code.Helpers.HelperFunctions;
 import org.code.Entities.Location;
 
@@ -67,44 +68,60 @@ public class GuestView {
     }
 
     private void bookProperty(Guest guest) {
-        System.out.print("Enter property ID to book: ");
-        int propertyId = Integer.parseInt(scanner.nextLine());
         try {
+            System.out.print("Enter property ID to book: ");
+            int propertyId = Integer.parseInt(scanner.nextLine());
+            if (propertyId <= 0) throw new ValidationException("Property ID must be positive.");
+
             System.out.print("Enter check-in date (YYYY-MM-DD): ");
             Date checkInDate = new SimpleDateFormat("yyyy-MM-dd").parse(scanner.nextLine());
+
             System.out.print("Enter check-out date (YYYY-MM-DD): ");
             Date checkOutDate = new SimpleDateFormat("yyyy-MM-dd").parse(scanner.nextLine());
 
             controller.bookProperty(guest, propertyId, checkInDate, checkOutDate);
+        } catch (ValidationException e) {
+            System.out.println("Validation Error: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Invalid date format. Please enter in YYYY-MM-DD format.");
         }
     }
 
     private void leaveReview(Guest guest) {
-        System.out.print("Enter property ID to review: ");
-        int propertyId = Integer.parseInt(scanner.nextLine());
-        System.out.print("Enter rating (0.0 - 5.0): ");
-        double rating = Double.parseDouble(scanner.nextLine());
-        System.out.print("Enter comment: ");
-        String comment = scanner.nextLine();
+        try {
+            System.out.print("Enter property ID to review: ");
+            int propertyId = Integer.parseInt(scanner.nextLine());
+            if (propertyId <= 0) throw new ValidationException("Property ID must be positive.");
 
-        controller.leaveReview(guest, propertyId, rating, comment);
-    }
+            System.out.print("Enter rating (0.0 - 5.0): ");
+            double rating = Double.parseDouble(scanner.nextLine());
+            if (rating < 0.0 || rating > 5.0) throw new ValidationException("Rating must be between 0.0 and 5.0.");
 
-    private void makePayment(Guest guest) {
-        System.out.print("Enter booking ID to pay for: ");
-        int bookingId = Integer.parseInt(scanner.nextLine());
-        // controller.makePayment(guest, bookingId);
+            System.out.print("Enter comment: ");
+            String comment = scanner.nextLine();
+            if (comment.isEmpty()) throw new ValidationException("Comment cannot be empty.");
+
+            controller.leaveReview(guest, propertyId, rating, comment);
+        } catch (ValidationException e) {
+            System.out.println("Validation Error: " + e.getMessage());
+        }
     }
 
     private void filterPropertiesByLocation() {
-        System.out.print("Enter city: ");
-        String city = scanner.nextLine();
-        System.out.print("Enter country: ");
-        String country = scanner.nextLine();
-        Location location = new Location(city, country);
-        controller.filterPropertiesByLocation(location);
+        try {
+            System.out.print("Enter city: ");
+            String city = scanner.nextLine();
+            if (city.isEmpty()) throw new ValidationException("City cannot be empty.");
+
+            System.out.print("Enter country: ");
+            String country = scanner.nextLine();
+            if (country.isEmpty()) throw new ValidationException("Country cannot be empty.");
+
+            Location location = new Location(city, country);
+            controller.filterPropertiesByLocation(location);
+        } catch (ValidationException e) {
+            System.out.println("Validation Error: " + e.getMessage());
+        }
     }
 
     private void viewPropertiesByDate() {
