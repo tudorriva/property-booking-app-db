@@ -198,6 +198,74 @@ public class ApplicationTest {
         assertEquals("Date cannot be null.", exception.getMessage());
     }
 
+    @Test
+    void testAddProperty() {
+        Location location = new Location(1, "New York", "USA");
+        CancellationPolicy policy = new CancellationPolicy(1, "Flexible");
+        Property property = new Property(1, "123 Main St", 100.0, "A nice place", location, List.of(), policy, testHost.getId());
+        bookingController.addProperty(property);
+
+        Property retrievedProperty = bookingService.getPropertyById(property.getId());
+        assertNotNull(retrievedProperty);
+        assertEquals(property.getAddress(), retrievedProperty.getAddress());
+    }
+
+    @Test
+    void testAddPropertyException() {
+        Exception exception = assertThrows(ValidationException.class, () -> {
+            bookingController.addProperty(null);
+        });
+
+        assertEquals("Property cannot be null.", exception.getMessage());
+    }
+
+    @Test
+    void testLeaveReview() {
+        Location location = new Location(1, "New York", "USA");
+        CancellationPolicy policy = new CancellationPolicy(1, "Flexible");
+        Property property = new Property(1, "123 Main St", 100.0, "A nice place", location, List.of(), policy, testHost.getId());
+        bookingController.addProperty(property);
+
+        bookingController.leaveReview(testGuest, property.getId(), 4.5, "Great place!");
+
+        List<Review> reviews = bookingService.getReviewsForProperty(property.getId(), true, true);
+        assertTrue(reviews.stream().anyMatch(review -> review.getRating() == 4.5 && review.getComment().equals("Great place!")));
+    }
+
+    @Test
+    void testLeaveReviewException() {
+        Exception exception = assertThrows(ValidationException.class, () -> {
+            bookingController.leaveReview(testGuest, -1, 4.5, "Great place!");
+        });
+
+        assertEquals("Property ID must be positive.", exception.getMessage());
+    }
+
+    @Test
+    void testGetBookingsForGuest() {
+        Location location = new Location(1, "New York", "USA");
+        CancellationPolicy policy = new CancellationPolicy(1, "Flexible");
+        Property property = new Property(1, "123 Main St", 100.0, "A nice place", location, List.of(), policy, testHost.getId());
+        bookingController.addProperty(property);
+
+        Date checkInDate = new Date();
+        Date checkOutDate = new Date(checkInDate.getTime() + (1000 * 60 * 60 * 24 * 2)); // 2 days later
+        bookingController.bookProperty(testGuest, property.getId(), checkInDate, checkOutDate);
+
+        List<Booking> bookings = bookingService.getBookingsForGuest(testGuest.getId());
+        assertTrue(bookings.stream().anyMatch(booking -> booking.getPropertyID() == property.getId()));
+    }
+
+
+    @Test
+    void testGetBookingsForGuestException() {
+        Exception exception = assertThrows(ValidationException.class, () -> {
+            bookingController.getBookingsForGuest(-1);
+        });
+
+        assertEquals("Guest ID must be positive.", exception.getMessage());
+    }
+
     @AfterAll
     void cleanup() {
         sessionFactory.close();
