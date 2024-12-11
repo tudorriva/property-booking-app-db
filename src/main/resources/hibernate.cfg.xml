@@ -7,6 +7,7 @@
         <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/propbookingapp</property>
         <property name="hibernate.connection.username">admin</property>
         <property name="hibernate.connection.password">admin</property>
+        <property name="hibernate.current_session_context_class">thread</property>
 
         <!-- JDBC connection pool settings -->
         <property name="hibernate.c3p0.min_size">5</property>
