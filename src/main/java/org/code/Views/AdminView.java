@@ -104,5 +104,6 @@ public class AdminView {
         } catch (ValidationException e) {
             System.out.println("Validation Error: " + e.getMessage());
         }
+
     }
 }
