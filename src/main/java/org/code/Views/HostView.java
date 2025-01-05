@@ -12,25 +12,15 @@ import java.util.Scanner;
 public class HostView {
     private final PropertyBookingController controller;
     private final Scanner scanner;
+    private final Host host;
 
-    public HostView(PropertyBookingController controller, Scanner scanner) {
+    public HostView(PropertyBookingController controller, Scanner scanner, Host host) {
         this.controller = controller;
         this.scanner = scanner;
+        this.host = host;
     }
 
     public void run() {
-        System.out.println("\nSelect a Host:");
-        List<Host> hosts = controller.getAllHosts();
-        hosts.forEach(host -> System.out.println(host.getId() + ": " + host.getName()));
-        System.out.print("Enter Host ID: ");
-        int hostId = Integer.parseInt(scanner.nextLine());
-        Host host = controller.getHostById(hostId);
-
-        if (host == null) {
-            System.out.println("Invalid Host ID.");
-            return;
-        }
-
         boolean running = true;
         while (running) {
             showHostMenu();

@@ -12,6 +12,7 @@ import org.code.Views.AdminView;
 import org.code.Views.GuestView;
 import org.code.Views.HostView;
 import org.code.Mappers.*;
+import org.code.Views.LoginView;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -69,19 +70,20 @@ public class PropertyBookingApp {
     }
 
     private void run() {
-        boolean running = true;
-        while (running) {
-            showMainMenu();
-            int choice = Integer.parseInt(scanner.nextLine());
-
-            switch (choice) {
-                case 1 -> new AdminView(controller, scanner).run();
-                case 2 -> new GuestView(controller, scanner).run();
-                case 3 -> new HostView(controller, scanner).run();
-                case 0 -> running = false;
-                default -> System.out.println("Invalid choice. Please try again.");
-            }
-        }
+//        boolean running = true;
+//        while (running) {
+//            showMainMenu();
+//            int choice = Integer.parseInt(scanner.nextLine());
+//
+//            switch (choice) {
+//                case 1 -> new AdminView(controller, scanner).run();
+//                case 2 -> new GuestView(controller, scanner).run();
+//                case 3 -> new HostView(controller, scanner).run();
+//                case 0 -> running = false;
+//                default -> System.out.println("Invalid choice. Please try again.");
+//            }
+//        }
+        new LoginView(controller, scanner).run();
         System.out.println("Exiting the Property Booking System. Goodbye!");
     }
 

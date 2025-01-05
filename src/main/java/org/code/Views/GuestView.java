@@ -14,25 +14,15 @@ import java.util.Scanner;
 public class GuestView {
     private final PropertyBookingController controller;
     private final Scanner scanner;
+    private final Guest guest;
 
-    public GuestView(PropertyBookingController controller, Scanner scanner) {
+    public GuestView(PropertyBookingController controller, Scanner scanner, Guest guest) {
         this.controller = controller;
         this.scanner = scanner;
+        this.guest = guest;
     }
 
     public void run() {
-        System.out.println("\nSelect a Guest:");
-        List<Guest> guests = controller.getAllGuests();
-        guests.forEach(guest -> System.out.println(guest.getId() + ": " + guest.getName()));
-        System.out.print("Enter Guest ID: ");
-        int guestId = Integer.parseInt(scanner.nextLine());
-        Guest guest = controller.getGuestById(guestId);
-
-        if (guest == null) {
-            System.out.println("Invalid Guest ID.");
-            return;
-        }
-
         boolean running = true;
         while (running) {
             showGuestMenu();
@@ -42,11 +32,9 @@ public class GuestView {
                 case 1 -> bookProperty(guest);
                 case 2 -> controller.viewBookings(guest);
                 case 3 -> leaveReview(guest);
-                // case 4 -> makePayment(guest);
                 case 5 -> filterPropertiesByLocation();
                 case 6 -> viewPropertiesByDate();
                 case 7 -> viewAvailablePropertiesByDateSortedByPrice();
-                // case 8 -> controller.listPropertiesByTotalReviews();
                 case 0 -> running = false;
                 default -> System.out.println("Invalid choice. Please try again.");
             }
@@ -58,11 +46,9 @@ public class GuestView {
         System.out.println("1. Book a Property");
         System.out.println("2. View My Bookings");
         System.out.println("3. Leave a Review");
-        // System.out.println("4. Make a Payment");
         System.out.println("5. Filter Properties by Location");
         System.out.println("6. View Properties by Date");
         System.out.println("7. View Available Properties by Date Sorted by Price");
-       //  System.out.println("8. View Properties by number of reviews");
         System.out.println("0. Go back");
         System.out.print("Choose an option: ");
     }
