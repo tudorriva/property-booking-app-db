@@ -498,4 +498,24 @@ public class PropertyBookingService {
             throw new BusinessLogicException("Error adding cancellation policy: " + e.getMessage(), e);
         }
     }
+
+    public IRepository<Host> getHostRepo() {
+        return hostRepo;
+    }
+
+    public IRepository<Guest> getGuestRepo() {
+        return guestRepo;
+    }
+
+    public IRepository<Property> getPropertyRepo() {
+        return propertyRepo;
+    }
+
+    public IRepository<Booking> getBookingRepo() {
+        return bookingRepo;
+    }
+
+    public IRepository<Review> getReviewRepo() {
+        return reviewRepo;
+    }
 }
