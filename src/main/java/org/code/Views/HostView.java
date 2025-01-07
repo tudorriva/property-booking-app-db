@@ -29,26 +29,25 @@ public class HostView {
             switch (choice) {
                 case 1 -> listProperty(host);
                 case 2 -> addAmenity(host);
-                case 3 -> controller.viewPaymentsForHost(host);
-                case 4 -> controller.viewTransactionHistoryForHost(host);
-                case 5 -> controller.showPropertiesForHost(host);
-                case 6 -> deleteProperty(host);
-                case 7 -> sortReviewsForHostProperties(host);
+                case 3 -> viewPaymentsForHost();
+                case 4 -> controller.showPropertiesForHost(host);
+                case 5 -> deleteProperty(host);
+                case 6 -> sortReviewsForHostProperties(host);
                 case 0 -> running = false;
                 default -> System.out.println("Invalid choice. Please try again.");
             }
         }
+        new LoginView(controller, scanner).run();
     }
 
     private void showHostMenu() {
         System.out.println("\nHost Menu:");
         System.out.println("1. List a Property");
         System.out.println("2. Add an Amenity to Property");
-        System.out.println("3. View Payments Received");
-        System.out.println("4. View Transaction History");
-        System.out.println("5. Show Properties Managed by Host");
-        System.out.println("6. Delete a Property");
-        System.out.println("7. Sort and View Reviews for Properties");
+        System.out.println("3. View Payments for properties");
+        System.out.println("4. Show Properties Managed by Host");
+        System.out.println("5. Delete a Property");
+        System.out.println("6. Sort and View Reviews for Properties");
         System.out.println("0. Go back");
         System.out.print("Choose an option: ");
     }
@@ -210,4 +209,22 @@ public class HostView {
             System.out.println("Validation Error: " + e.getMessage());
         }
     }
+    private void viewPaymentsForHost() {
+        try {
+            List<Payment> allPayments = controller.getAllPaymentsForHost(host.getId());
+
+            if (allPayments.isEmpty()) {
+                System.out.println("No payments found.");
+                return;
+            }
+
+            System.out.println("Payments for host:");
+            for (Payment payment : allPayments) {
+                System.out.println("Payment ID: " + payment.getPaymentID() + ", Amount: " + payment.getAmount() + ", Date: " + payment.getDate() + ", Processed: " + payment.isProcessed());
+            }
+        } catch (ValidationException e) {
+            System.out.println("Validation Error: " + e.getMessage());
+        }
+    }
+
 }

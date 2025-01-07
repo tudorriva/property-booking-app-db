@@ -283,7 +283,6 @@ public class PropertyBookingService {
 
             int paymentId = generateUniqueId();
             Payment payment = new Payment(paymentId, totalPrice, new Date());
-            payment.processPayment();
             paymentRepo.create(payment);
 
             int bookingId = generateUniqueId();
@@ -517,5 +516,26 @@ public class PropertyBookingService {
 
     public IRepository<Review> getReviewRepo() {
         return reviewRepo;
+    }
+
+    public void createPayment(Payment payment) {
+        try {
+            paymentRepo.create(payment);
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error creating payment: " + e.getMessage(), e);
+        }
+    }
+
+    public void processPayment(int paymentId) {
+        try {
+            Payment payment = paymentRepo.read(paymentId);
+            if (payment == null) {
+                throw new EntityNotFoundException("Payment with ID " + paymentId + " not found.");
+            }
+            payment.processPayment();
+            paymentRepo.update(payment);
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error processing payment: " + e.getMessage(), e);
+        }
     }
 }

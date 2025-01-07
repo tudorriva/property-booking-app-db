@@ -1,6 +1,7 @@
 package org.code.Views;
 
 import org.code.Controller.PropertyBookingController;
+import org.code.Entities.Booking;
 import org.code.Entities.Guest;
 import org.code.Exceptions.ValidationException;
 import org.code.Helpers.HelperFunctions;
@@ -32,6 +33,7 @@ public class GuestView {
                 case 1 -> bookProperty(guest);
                 case 2 -> controller.viewBookings(guest);
                 case 3 -> leaveReview(guest);
+                case 4 -> payForBooking(guest);
                 case 5 -> filterPropertiesByLocation();
                 case 6 -> viewPropertiesByDate();
                 case 7 -> viewAvailablePropertiesByDateSortedByPrice();
@@ -39,6 +41,7 @@ public class GuestView {
                 default -> System.out.println("Invalid choice. Please try again.");
             }
         }
+        new LoginView(controller, scanner).run();
     }
 
     private void showGuestMenu() {
@@ -46,6 +49,7 @@ public class GuestView {
         System.out.println("1. Book a Property");
         System.out.println("2. View My Bookings");
         System.out.println("3. Leave a Review");
+        System.out.println("4. Pay for a Booking");
         System.out.println("5. Filter Properties by Location");
         System.out.println("6. View Properties by Date");
         System.out.println("7. View Available Properties by Date Sorted by Price");
@@ -117,6 +121,36 @@ public class GuestView {
             controller.viewAllPropertiesByDate(date);
         } catch (Exception e) {
             System.out.println("Invalid date format. Please enter in YYYY-MM-DD format.");
+        }
+    }
+
+    private void payForBooking(Guest guest) {
+        try {
+            List<Booking> unpaidBookings = controller.getUnpaidBookingsForGuest(guest.getId());
+
+            if (unpaidBookings.isEmpty()) {
+                System.out.println("No unpaid bookings found.");
+                return;
+            }
+
+            System.out.println("Select a booking to pay for:");
+            for (int i = 0; i < unpaidBookings.size(); i++) {
+                Booking booking = unpaidBookings.get(i);
+                System.out.println((i + 1) + ". Booking ID: " + booking.getId() + ", Property ID: " + booking.getPropertyID() + ", Total Price: " + booking.getTotalPrice());
+            }
+
+            System.out.print("Enter booking number: ");
+            int bookingIndex = Integer.parseInt(scanner.nextLine()) - 1;
+
+            if (bookingIndex < 0 || bookingIndex >= unpaidBookings.size()) {
+                throw new ValidationException("Invalid booking number.");
+            }
+
+            Booking selectedBooking = unpaidBookings.get(bookingIndex);
+            controller.processPaymentForBooking(selectedBooking.getId());
+            System.out.println("Payment processed successfully for Booking ID: " + selectedBooking.getId());
+        } catch (ValidationException e) {
+            System.out.println("Validation Error: " + e.getMessage());
         }
     }
 

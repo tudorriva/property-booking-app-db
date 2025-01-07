@@ -586,4 +586,33 @@ public class PropertyBookingController {
             });
         }
     }
+
+    public void processPayment(int paymentId) {
+        bookingService.processPayment(paymentId);
+        System.out.println("Payment processed successfully.");
+    }
+
+    public List<Payment> getAllPaymentsForHost(int hostId) {
+        return bookingService.getPaymentsForHost(hostId);
+    }
+
+    public List<Booking> getUnpaidBookingsForGuest(int guestId) {
+        return bookingService.getBookingsForGuest(guestId).stream()
+                .filter(booking -> !booking.getPayment().isProcessed())
+                .collect(Collectors.toList());
+    }
+
+    public void processPaymentForBooking(int bookingId) {
+        Booking booking = bookingService.getBookingById(bookingId);
+        if (booking == null) {
+            throw new ValidationException("Invalid booking ID.");
+        }
+        bookingService.processPayment(booking.getPayment().getPaymentID());
+    }
+
+    public List<Payment> getUnpaidPaymentsForHost(int hostId) {
+        return bookingService.getPaymentsForHost(hostId).stream()
+                .filter(payment -> !payment.isProcessed())
+                .collect(Collectors.toList());
+    }
 }
