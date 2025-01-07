@@ -402,7 +402,6 @@ public class PropertyBookingService {
             return bookingRepo.getAll().stream()
                     .filter(booking -> getPropertyById(booking.getPropertyID()).getHostID() == hostId)
                     .map(Booking::getPayment)
-                    .filter(Payment::isProcessed)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new BusinessLogicException("Error retrieving payments for host: " + e.getMessage(), e);
