@@ -27,9 +27,10 @@ The Property Booking Application is designed to facilitate the booking of proper
 - **Database Storage**: Store data in a database for robust and scalable storage.
 
 ## Class Diagram
-![Class Diagram](C:\Users\tudor\Desktop\proiect retele\server\property-booking-app\umd_diag.png)
+![umd_diag](https://github.com/user-attachments/assets/a2b0bd59-b3c2-47e4-a83f-1f4953ef754e)
 
 ## How to Run
+
 1. Clone the repository.
 2. Navigate to the project directory.
 3. Run the application using your preferred IDE or build tool (e.g., IntelliJ IDEA, Maven).
