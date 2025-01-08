@@ -489,14 +489,6 @@ public class PropertyBookingService {
         }
     }
 
-    public void addCancellationPolicy(CancellationPolicy cancellationPolicy) {
-        try {
-            cancellationPolicyRepo.create(cancellationPolicy);
-        } catch (Exception e) {
-            throw new BusinessLogicException("Error adding cancellation policy: " + e.getMessage(), e);
-        }
-    }
-
     public IRepository<Host> getHostRepo() {
         return hostRepo;
     }
@@ -535,6 +527,37 @@ public class PropertyBookingService {
             paymentRepo.update(payment);
         } catch (Exception e) {
             throw new BusinessLogicException("Error processing payment: " + e.getMessage(), e);
+        }
+    }
+
+    public List<CancellationPolicy> getAllCancellationPolicies() {
+        try {
+            return cancellationPolicyRepo.getAll();
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error retrieving cancellation policies: " + e.getMessage(), e);
+        }
+    }
+
+    public void addCancellationPolicy(CancellationPolicy policy) {
+        try {
+            if (policy == null) {
+                throw new BusinessLogicException("Cancellation policy cannot be null.");
+            }
+            cancellationPolicyRepo.create(policy);
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error adding cancellation policy: " + e.getMessage(), e);
+        }
+    }
+
+    public CancellationPolicy getCancellationPolicyById(int id) {
+        try {
+            CancellationPolicy policy = cancellationPolicyRepo.read(id);
+            if (policy == null) {
+                throw new EntityNotFoundException("Cancellation policy with ID " + id + " not found.");
+            }
+            return policy;
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error retrieving cancellation policy by ID: " + e.getMessage(), e);
         }
     }
 }

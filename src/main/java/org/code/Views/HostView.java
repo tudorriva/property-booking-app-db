@@ -74,28 +74,55 @@ public class HostView {
             String country = scanner.nextLine();
             if (country.isEmpty()) throw new ValidationException("Country cannot be empty.");
 
-            int id = HelperFunctions.randomId();
-            Location location = new Location(id, city, country);
+            int locationId = HelperFunctions.randomId();
+            Location location = new Location(locationId, city, country);
 
-            System.out.print("Enter amenity name: ");
-            String amenityName = scanner.nextLine();
-            if (amenityName.isEmpty()) throw new ValidationException("Amenity name cannot be empty.");
+            // List available amenities
+            List<Amenity> allAmenities = controller.getAllAmenities();
+            System.out.println("Available amenities:");
+            allAmenities.forEach(amenity -> System.out.println(amenity.getAmenityID() + ". " + amenity.getName() + ": " + amenity.getDescription()));
 
-            System.out.print("Enter amenity description: ");
-            String amenityDescription = scanner.nextLine();
-            if (amenityDescription.isEmpty()) throw new ValidationException("Amenity description cannot be empty.");
+            System.out.print("Enter amenity ID to add or 0 to create a new one: ");
+            int amenityId = Integer.parseInt(scanner.nextLine());
 
-            int id2 = HelperFunctions.randomId();
-            Amenity amenity = new Amenity(id2, amenityName, amenityDescription);
+            Amenity amenity;
+            if (amenityId == 0) {
+                System.out.print("Enter new amenity name: ");
+                String amenityName = scanner.nextLine();
+                if (amenityName.isEmpty()) throw new ValidationException("Amenity name cannot be empty.");
 
-            System.out.print("Enter cancellation policy description: ");
-            String cancellationPolicyDescription = scanner.nextLine();
-            if (cancellationPolicyDescription.isEmpty()) throw new ValidationException("Cancellation policy description cannot be empty.");
+                System.out.print("Enter new amenity description: ");
+                String amenityDescription = scanner.nextLine();
+                if (amenityDescription.isEmpty()) throw new ValidationException("Amenity description cannot be empty.");
 
-            CancellationPolicy cancellationPolicy = controller.getCancellationPolicyByDescription(cancellationPolicyDescription);
-            if (cancellationPolicy == null) {
-                int id3 = HelperFunctions.randomId();
-                cancellationPolicy = new CancellationPolicy(id3, cancellationPolicyDescription);
+                int newAmenityId = HelperFunctions.randomId();
+                amenity = new Amenity(newAmenityId, amenityName, amenityDescription);
+                controller.addAmenity(amenity);
+            } else {
+                amenity = controller.getAmenityById(amenityId);
+                if (amenity == null) throw new ValidationException("Invalid amenity ID.");
+            }
+
+            // List available cancellation policies
+            List<CancellationPolicy> allPolicies = controller.getAllCancellationPolicies();
+            System.out.println("Available cancellation policies:");
+            allPolicies.forEach(policy -> System.out.println(policy.getId() + ". " + policy.getDescription()));
+
+            System.out.print("Enter cancellation policy ID to add or 0 to create a new one: ");
+            int policyId = Integer.parseInt(scanner.nextLine());
+
+            CancellationPolicy cancellationPolicy;
+            if (policyId == 0) {
+                System.out.print("Enter new cancellation policy description: ");
+                String policyDescription = scanner.nextLine();
+                if (policyDescription.isEmpty()) throw new ValidationException("Cancellation policy description cannot be empty.");
+
+                int newPolicyId = HelperFunctions.randomId();
+                cancellationPolicy = new CancellationPolicy(newPolicyId, policyDescription);
+                controller.addCancellationPolicy(cancellationPolicy);
+            } else {
+                cancellationPolicy = controller.getCancellationPolicyById(policyId);
+                if (cancellationPolicy == null) throw new ValidationException("Invalid cancellation policy ID.");
             }
 
             List<Integer> amenityIDs = List.of(amenity.getAmenityID());
@@ -107,53 +134,54 @@ public class HostView {
 
     private void addAmenity(Host host) {
         try {
+            // List properties managed by the host
             List<Property> properties = controller.getPropertiesForHost(host.getId());
-            if (properties.isEmpty()) throw new ValidationException("No properties found for this host.");
+            if (properties.isEmpty()) {
+                System.out.println("No properties found for this host.");
+                return;
+            }
 
             System.out.println("Select a property to add an amenity:");
             for (int i = 0; i < properties.size(); i++) {
-                System.out.println((i + 1) + ". " + properties.get(i).getAddress());
+                Property property = properties.get(i);
+                System.out.println((i + 1) + ". " + property.getAddress());
             }
-            System.out.print("Enter property number: ");
-            int propertyIndex = Integer.parseInt(scanner.nextLine()) - 1;
 
-            if (propertyIndex < 0 || propertyIndex >= properties.size()) throw new ValidationException("Invalid property number.");
+            int propertyIndex = Integer.parseInt(scanner.nextLine()) - 1;
+            if (propertyIndex < 0 || propertyIndex >= properties.size()) {
+                throw new ValidationException("Invalid property number.");
+            }
 
             Property property = properties.get(propertyIndex);
-            List<Amenity> existingAmenities = controller.getAmenitiesForProperty(property);
+
+            // List available amenities
             List<Amenity> allAmenities = controller.getAllAmenities();
+            System.out.println("Available amenities:");
+            allAmenities.forEach(amenity -> System.out.println(amenity.getAmenityID() + ". " + amenity.getName() + ": " + amenity.getDescription()));
 
-            System.out.println("Existing amenities for this property:");
-            existingAmenities.forEach(amenity -> System.out.println(amenity.getName() + ": " + amenity.getDescription()));
-
-            System.out.println("\nAmenities that can be added:");
-            allAmenities.stream()
-                    .filter(amenity -> !existingAmenities.contains(amenity))
-                    .forEach(amenity -> System.out.println(amenity.getId() + ". " + amenity.getName() + ": " + amenity.getDescription()));
-
-            System.out.print("\nEnter amenity ID to add or 0 to create a new one: ");
+            System.out.print("Enter amenity ID to add or 0 to create a new one: ");
             int amenityId = Integer.parseInt(scanner.nextLine());
 
+            Amenity amenity;
             if (amenityId == 0) {
                 System.out.print("Enter new amenity name: ");
-                String name = scanner.nextLine();
-                if (name.isEmpty()) throw new ValidationException("Amenity name cannot be empty.");
+                String amenityName = scanner.nextLine();
+                if (amenityName.isEmpty()) throw new ValidationException("Amenity name cannot be empty.");
 
                 System.out.print("Enter new amenity description: ");
-                String description = scanner.nextLine();
-                if (description.isEmpty()) throw new ValidationException("Amenity description cannot be empty.");
+                String amenityDescription = scanner.nextLine();
+                if (amenityDescription.isEmpty()) throw new ValidationException("Amenity description cannot be empty.");
 
                 int newAmenityId = HelperFunctions.randomId();
-                Amenity newAmenity = new Amenity(newAmenityId, name, description);
-                controller.addAmenityToProperty(property, newAmenity);
+                amenity = new Amenity(newAmenityId, amenityName, amenityDescription);
+                controller.addAmenity(amenity);
             } else {
-                Amenity amenity = controller.getAmenityById(amenityId);
-                if (amenity != null && !existingAmenities.contains(amenity)) {
-                    controller.addAmenityToProperty(property, amenity);
-                } else {
-                    throw new ValidationException("Invalid amenity ID or amenity already exists on this property.");
-                }
+                amenity = controller.getAmenityById(amenityId);
+                if (amenity == null) throw new ValidationException("Invalid amenity ID.");
             }
+
+            controller.addAmenityToProperty(property, amenity);
+            System.out.println("Amenity added successfully.");
         } catch (ValidationException e) {
             System.out.println("Validation Error: " + e.getMessage());
         }

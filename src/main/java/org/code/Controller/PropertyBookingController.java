@@ -615,4 +615,31 @@ public class PropertyBookingController {
                 .filter(payment -> !payment.isProcessed())
                 .collect(Collectors.toList());
     }
+
+    public List<CancellationPolicy> getAllCancellationPolicies() {
+        return bookingService.getAllCancellationPolicies();
+    }
+
+    public void addCancellationPolicy(CancellationPolicy policy) {
+        if (policy == null) {
+            throw new ValidationException("Cancellation policy cannot be null.");
+        }
+        bookingService.addCancellationPolicy(policy);
+        System.out.println("Cancellation policy added successfully.");
+    }
+
+    public CancellationPolicy getCancellationPolicyById(int id) {
+        if (id <= 0) {
+            throw new ValidationException("Cancellation policy ID must be positive.");
+        }
+        return bookingService.getCancellationPolicyById(id);
+    }
+
+    public void addAmenity(Amenity amenity) {
+        if (amenity == null) {
+            throw new ValidationException("Amenity cannot be null.");
+        }
+        bookingService.addAmenity(amenity);
+        System.out.println("Amenity added successfully.");
+    }
 }
